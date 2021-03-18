@@ -7,7 +7,9 @@ module.exports = function (app) {
   
     .get(function (req, res){
       let project = req.params.project;
-      
+      const filters = req.query;
+
+      db_utils.getIssues((err, docs) => res.json(docs), filters)
     })
     
     .post(function (req, res){

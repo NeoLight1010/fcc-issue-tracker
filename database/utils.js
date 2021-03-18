@@ -27,5 +27,14 @@ function createIssue(done, title, text, createdBy, assignedTo="", statusText="")
   });
 }
 
+function getIssues(done, filters) {
+  Issue.find(filters, (err, docs) => {
+    if (err) return console.log(err);
+
+    done(null, docs);
+  });
+}
+
 exports.deleteAllIssues = deleteAllIssues;
 exports.createIssue = createIssue;
+exports.getIssues = getIssues;
