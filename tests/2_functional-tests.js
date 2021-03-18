@@ -6,9 +6,20 @@ const dbUtils = require("../database/utils");
 
 chai.use(chaiHttp);
 
+let updateTestsIssue;
+
 suite("Functional Tests", function () {
   suiteSetup((done) => {
    dbUtils.deleteAllIssues(done);     
+
+   dbUtils.createIssue(
+        (err, newIssue) => {updateTestsIssue = newIssue},
+        "update test",
+        "testing update with put request",
+        "neo_admin",
+        "assignee_1",
+        "testing"
+      );
   });
 
   suite("Create Issues Tests", () => {
@@ -125,6 +136,113 @@ suite("Functional Tests", function () {
           assert.equal(res.body[0].assigned_to, "every_field_asignee", "Issue Assigned To");
           assert.equal(res.body[0].status_text, "testing", "Issue Status Text");
           done(); 
+        });
+    });
+  });
+
+  suite('Update Issues Tests', () => {
+    test('Update one field', (done) => {
+      const updateTestsIssueId = updateTestsIssue._id;
+
+      chai
+        .request(server)
+        .put('/api/issues/apitest')
+        .send({
+          "_id": updateTestsIssueId,
+          "assigned_to": "assignee_2" 
+        })
+        .end((req, res) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(res.body, {
+            "result": "successfully updated",
+            "id": updateTestsIssueId
+          });
+        });
+
+      let issueAfterUpdate;
+      dbUtils.getIssues((err, docs) => {issueAfterUpdate = docs[0]}, {_id: updateTestsIssueId});
+
+      assert.equal(issueAfterUpdate.assigned_to, "assignee_2");
+      done();
+    });
+
+    test('Update multiple fields', (done) => {
+      const updateTestsIssueId = updateTestsIssue._id; 
+
+      chai
+        .request(server)
+        .put('/api/issues/apitest')
+        .send({
+          "_id": updateTestsIssueId,
+          "assigned_to": "assignee_3",
+          "issue_title": "testing changing title"
+        })
+        .end((req, res) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(res.body, {
+            "result": "successfully updated",
+            "id": updateTestsIssueId
+          });
+        });
+
+      let issueAfterUpdate;
+      dbUtils.getIssues((err, docs) => {issueAfterUpdate = docs[0]}, {_id: updateTestsIssueId});
+
+      assert.equal(issueAfterUpdate.assigned_to, "assignee_3");
+      assert.equal(issueAfterUpdate.issue_title, "testing changing title");
+      done();
+    });
+
+    test('Attempt update without _id', (done) => {
+      chai
+        .request(server)
+        .put('api/issues/apitest')
+        .send({
+          "_id": "",
+          "issue_title": "no _id update attempt"
+        })
+        .end((req, res) => {
+          assert.equal(req.status, 200);
+          assert.deepEqual(req.body, {
+            "error": "missing_id"
+          });
+          done();
+        });
+    });
+
+    test('Attempt update without updated fields', (done) => {
+      const updateTestsIssueId = updateTestsIssue._id;
+
+      chai
+        .request(server)
+        .put('api/issues/apitest')
+        .send({
+          "_id": updateTestsIssueId
+        })
+        .end((req, res) => {
+          assert.equal(req.status, 200);
+          assert.deepEqual(req.body, {
+            "error": "no update field(s) sent",
+            "_id": updateTestsIssueId,
+          });
+          done();
+        });
+    });
+
+    test('Attempt update with invalid id', (done) => {
+      chai
+        .request(server)
+        .put('api/issues/apitest')
+        .send({
+          "_id": "this is an invalid id",
+          "issue_title": "this should not work"
+        })
+        .end((req, res) => {
+          assert.equal(req.status, 200);
+          assert.deepEqual(req.body, {
+            "error": "invalid id"
+          });
+          done();
         });
     });
   });
