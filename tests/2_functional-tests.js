@@ -2,11 +2,16 @@ const chaiHttp = require("chai-http");
 const chai = require("chai");
 const assert = chai.assert;
 const server = require("../server");
+const dbUtils = require("../database/utils");
 
 chai.use(chaiHttp);
 
 suite("Functional Tests", function () {
-  suite("Create Issue Tests", () => {
+  suiteSetup((done) => {
+   dbUtils.deleteAllIssues(done);     
+  });
+
+  suite("Create Issues Tests", () => {
     test("Create issue with every field", async (done) => {
       chai
         .request(server)
@@ -66,5 +71,8 @@ suite("Functional Tests", function () {
           done();
         });
     });
+  });
+
+  suite('View Issues Tests', () => {
   });
 });
