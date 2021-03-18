@@ -12,7 +12,7 @@ suite("Functional Tests", function () {
   });
 
   suite("Create Issues Tests", () => {
-    test("Create issue with every field", async (done) => {
+    test("Create issue with every field",  (done) => {
       chai
         .request(server)
         .post("/api/issues/apitest")
@@ -35,7 +35,7 @@ suite("Functional Tests", function () {
         });
     });
 
-    test("Create issue with only required fields", async (done) => {
+    test("Create issue with only required fields",  (done) => {
       chai
         .request(server)
         .post("/api/issues/apitest")
@@ -56,7 +56,7 @@ suite("Functional Tests", function () {
         });
     });
 
-    test("Create issue with missing required fields", async (done) => {
+    test("Create issue with missing required fields",  (done) => {
       chai
         .request(server)
         .post("/api/issues/apitest")
@@ -74,7 +74,7 @@ suite("Functional Tests", function () {
   });
 
   suite('View Issues Tests', () => {
-    test("View all issues", async (done) => {
+    test("View all issues",  (done) => {
       chai
         .request(server)
         .get('/api/issues/apitest')
@@ -94,7 +94,7 @@ suite("Functional Tests", function () {
         });
     });
 
-    test("View issues with one filter", async (done) => {
+    test("View issues with one filter",  (done) => {
       chai
         .request(server)
         .get('/api/issues/apitest?assigned_to=every_field_asignee')
@@ -111,7 +111,7 @@ suite("Functional Tests", function () {
         });
     })
 
-    test("View issues with multiple filters", async (done) => {
+    test("View issues with multiple filters",  (done) => {
       chai
         .request(server)
         .get('/api/issues/apitest?assigned_to=every_field_asignee&open=true')
