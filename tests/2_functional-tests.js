@@ -3,6 +3,7 @@ const chai = require("chai");
 const assert = chai.assert;
 const server = require("../server");
 const dbUtils = require("../database/utils");
+const { Issue } = require("../database/models");
 
 chai.use(chaiHttp);
 
@@ -153,17 +154,10 @@ suite("Functional Tests", function () {
         })
         .end((req, res) => {
           assert.equal(res.status, 200);
-          assert.deepEqual(res.body, {
-            "result": "successfully updated",
-            "id": updateTestsIssueId
-          });
+          assert.equal(res.body.result, "successfully updated");
+          assert.equal(res.body._id, updateTestsIssueId);
+          done();
         });
-
-      let issueAfterUpdate;
-      dbUtils.getIssues((err, docs) => {issueAfterUpdate = docs[0]}, {_id: updateTestsIssueId});
-
-      assert.equal(issueAfterUpdate.assigned_to, "assignee_2");
-      done();
     });
 
     test('Update multiple fields', (done) => {
@@ -179,33 +173,23 @@ suite("Functional Tests", function () {
         })
         .end((req, res) => {
           assert.equal(res.status, 200);
-          assert.deepEqual(res.body, {
-            "result": "successfully updated",
-            "id": updateTestsIssueId
-          });
+          assert.equal(res.body.result, "successfully updated");
+          assert.equal(res.body._id, updateTestsIssueId);
+          done();
         });
-
-      let issueAfterUpdate;
-      dbUtils.getIssues((err, docs) => {issueAfterUpdate = docs[0]}, {_id: updateTestsIssueId});
-
-      assert.equal(issueAfterUpdate.assigned_to, "assignee_3");
-      assert.equal(issueAfterUpdate.issue_title, "testing changing title");
-      done();
     });
 
     test('Attempt update without _id', (done) => {
       chai
         .request(server)
-        .put('api/issues/apitest')
+        .put('/api/issues/apitest')
         .send({
           "_id": "",
           "issue_title": "no _id update attempt"
         })
         .end((req, res) => {
-          assert.equal(req.status, 200);
-          assert.deepEqual(req.body, {
-            "error": "missing_id"
-          });
+          assert.equal(res.status, 200);
+          assert.equal(res.body.error, "missing _id");
           done();
         });
     });
@@ -215,16 +199,14 @@ suite("Functional Tests", function () {
 
       chai
         .request(server)
-        .put('api/issues/apitest')
+        .put('/api/issues/apitest')
         .send({
           "_id": updateTestsIssueId
         })
         .end((req, res) => {
-          assert.equal(req.status, 200);
-          assert.deepEqual(req.body, {
-            "error": "no update field(s) sent",
-            "_id": updateTestsIssueId,
-          });
+          assert.equal(res.status, 200);
+          assert.equal(res.body.error, "no update field(s) sent");
+          assert.equal(res.body._id, updateTestsIssueId);
           done();
         });
     });
@@ -232,16 +214,14 @@ suite("Functional Tests", function () {
     test('Attempt update with invalid id', (done) => {
       chai
         .request(server)
-        .put('api/issues/apitest')
+        .put('/api/issues/apitest')
         .send({
           "_id": "this is an invalid id",
           "issue_title": "this should not work"
         })
         .end((req, res) => {
-          assert.equal(req.status, 200);
-          assert.deepEqual(req.body, {
-            "error": "invalid id"
-          });
+          assert.equal(res.status, 200);
+          assert.equal(res.body.error, "invalid _id");
           done();
         });
     });
