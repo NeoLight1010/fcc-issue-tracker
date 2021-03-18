@@ -8,7 +8,7 @@ function deleteAllIssues(done) {
 }
 
 function createIssue(done, title, text, createdBy, assignedTo="", statusText="") {
-  const newIssue = new Issue({
+  const issueData = {
     issue_title: title,
     issue_text: text,
     created_by: createdBy,
@@ -17,7 +17,9 @@ function createIssue(done, title, text, createdBy, assignedTo="", statusText="")
     open: true,
     created_on: Date.now(),
     updated_on: Date.now()
-  });
+  } 
+
+  const newIssue = new Issue(issueData);
 
   newIssue.save((err, data) => {
     if (err) return console.log(err);
