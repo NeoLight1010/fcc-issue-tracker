@@ -7,14 +7,14 @@ const { Issue } = require("../database/models");
 
 chai.use(chaiHttp);
 
-let updateTestsIssue;
+let testIssue;
 
 suite("Functional Tests", function () {
   suiteSetup((done) => {
    dbUtils.deleteAllIssues(done);     
 
    dbUtils.createIssue(
-        (err, newIssue) => {updateTestsIssue = newIssue},
+        (err, newIssue) => {testIssue = newIssue},
         "update test",
         "testing update with put request",
         "neo_admin",
@@ -143,38 +143,38 @@ suite("Functional Tests", function () {
 
   suite('Update Issues Tests', () => {
     test('Update one field', (done) => {
-      const updateTestsIssueId = updateTestsIssue._id;
+      const testIssueId = testIssue._id;
 
       chai
         .request(server)
         .put('/api/issues/apitest')
         .send({
-          "_id": updateTestsIssueId,
+          "_id": testIssueId,
           "assigned_to": "assignee_2" 
         })
         .end((req, res) => {
           assert.equal(res.status, 200);
           assert.equal(res.body.result, "successfully updated");
-          assert.equal(res.body._id, updateTestsIssueId);
+          assert.equal(res.body._id, testIssueId);
           done();
         });
     });
 
     test('Update multiple fields', (done) => {
-      const updateTestsIssueId = updateTestsIssue._id; 
+      const testIssueId = testIssue._id; 
 
       chai
         .request(server)
         .put('/api/issues/apitest')
         .send({
-          "_id": updateTestsIssueId,
+          "_id": testIssueId,
           "assigned_to": "assignee_3",
           "issue_title": "testing changing title"
         })
         .end((req, res) => {
           assert.equal(res.status, 200);
           assert.equal(res.body.result, "successfully updated");
-          assert.equal(res.body._id, updateTestsIssueId);
+          assert.equal(res.body._id, testIssueId);
           done();
         });
     });
@@ -195,18 +195,18 @@ suite("Functional Tests", function () {
     });
 
     test('Attempt update without updated fields', (done) => {
-      const updateTestsIssueId = updateTestsIssue._id;
+      const testIssueId = testIssue._id;
 
       chai
         .request(server)
         .put('/api/issues/apitest')
         .send({
-          "_id": updateTestsIssueId
+          "_id": testIssueId
         })
         .end((req, res) => {
           assert.equal(res.status, 200);
           assert.equal(res.body.error, "no update field(s) sent");
-          assert.equal(res.body._id, updateTestsIssueId);
+          assert.equal(res.body._id, testIssueId);
           done();
         });
     });
@@ -227,5 +227,52 @@ suite("Functional Tests", function () {
     });
   });
 
-  // suite('')
+  suite('Delete Issues Tests', () => { 
+    test('Delete issue', (done) => {
+      const id = testIssue._id;
+      chai
+        .request(server)
+        .delete('/api/issues/apitest')
+        .send({
+          '_id': id
+        })
+        .end((req, res) => {
+          assert.equal(res.status, 200);
+          assert.equal(res.body.result, "successfully deleted");
+          assert.equal(res.body._id, id);
+
+          Issue.findById(id, (err, data) => {
+            assert.exists(data);
+            assert.notExists(err);
+          });
+          done();
+        });
+    });
+
+    test('Delete with invalid _id', (done) => {
+      const id = '5f665eb46e296f6b9b6a504d';
+
+      chai
+        .request(server)
+        .delete('/api/issues/apitest')
+        .send({"_id": id})
+        .end((req, res) => {
+          assert.equal(res.status, 200);
+          assert.equal(res.body.error, 'could not delete');
+          assert.equal(res.body._id, id);
+          done();
+        });
+    });
+
+    test('Delete missing _id', (done) => {
+      chai
+        .request(server)
+        .delete('/api/issues/apitest')
+        .end((req, res) => {
+          assert.equal(res.status, 200);
+          assert.equal(res.body.error, 'missing _id');
+          done();
+        });
+    });
+  });
 });
