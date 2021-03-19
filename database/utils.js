@@ -44,7 +44,15 @@ function updateIssueById(done, id, updates) {
   })
 }
 
+function deleteIssueById(done, id) {
+  Issue.findByIdAndDelete(id, (err, data) => {
+    if (err || data === null) return done(err, null);
+    else done(null, data);
+  });
+}
+
 exports.deleteAllIssues = deleteAllIssues;
 exports.createIssue = createIssue;
 exports.getIssues = getIssues;
 exports.updateIssueById = updateIssueById;
+exports.deleteIssueById = deleteIssueById;
