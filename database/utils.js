@@ -1,14 +1,15 @@
 const { Issue } = require('./models');
 
-function deleteAllIssues(done) {
-  Issue.deleteMany({}, (err, data) => {
+function deleteAllIssuesByProject(done, project) {
+  Issue.deleteMany({project: project}, (err, data) => {
     if (err) return console.log(err);
     done(null, data);
   });
 }
 
-function createIssue(done, title, text, createdBy, assignedTo="", statusText="") {
+function createIssue(done, project, title, text, createdBy, assignedTo="", statusText="") {
   const issueData = {
+    project: project,
     issue_title: title,
     issue_text: text,
     created_by: createdBy,
@@ -27,7 +28,8 @@ function createIssue(done, title, text, createdBy, assignedTo="", statusText="")
   });
 }
 
-function getIssues(done, filters) {
+function getIssues(done, project, filters) {
+  filters.project = project
   Issue.find(filters, (err, docs) => {
     if (err) return console.log(err);
 
@@ -51,7 +53,7 @@ function deleteIssueById(done, id) {
   });
 }
 
-exports.deleteAllIssues = deleteAllIssues;
+exports.deleteAllIssuesByProject = deleteAllIssuesByProject;
 exports.createIssue = createIssue;
 exports.getIssues = getIssues;
 exports.updateIssueById = updateIssueById;

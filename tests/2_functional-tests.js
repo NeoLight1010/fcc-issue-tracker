@@ -11,10 +11,11 @@ let testIssue;
 
 suite("Functional Tests", function () {
   suiteSetup((done) => {
-   dbUtils.deleteAllIssues(done);     
+   dbUtils.deleteAllIssuesByProject(done, "apitest");     
 
    dbUtils.createIssue(
         (err, newIssue) => {testIssue = newIssue},
+        "apitest",
         "update test",
         "testing update with put request",
         "neo_admin",

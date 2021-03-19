@@ -10,7 +10,7 @@ module.exports = function (app) {
       let project = req.params.project;
       const filters = req.query;
 
-      dbUtils.getIssues((err, docs) => res.json(docs), filters)
+      dbUtils.getIssues((err, docs) => res.json(docs), project, filters)
     })
     
     .post(function (req, res){
@@ -25,6 +25,7 @@ module.exports = function (app) {
       else {
         dbUtils.createIssue(
           (err, data) => {res.json(data)},
+          project,
           body.issue_title,
           body.issue_text,
           body.created_by,
