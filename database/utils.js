@@ -39,8 +39,8 @@ function updateIssueById(done, id, updates) {
   updates.updated_on = Date.now();
 
   Issue.findByIdAndUpdate(id, updates, {"useFindAndModify": false}, (err, data) => {
-    if (err) return console.log(err);
-    done(err, data);
+    if (err || data === null) return done(err, null);
+    else done(null, data);
   })
 }
 

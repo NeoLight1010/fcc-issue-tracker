@@ -38,25 +38,27 @@ module.exports = function (app) {
       let project = req.params.project;
       
       const id = req.body._id;
-      let updates = req.body; delete updates._id;
-
+      let updates = req.body; try {delete updates._id} catch(err) {};
+      
       if (!id) {
         return res.json({"error": "missing _id"});
       }
 
-      if (!ObjectID.isValid(id)) {
-        return res.json({"error": "invalid _id"});
-      }
-      
       if (Object.keys(updates).length === 0) {
         return res.json({"error": "no update field(s) sent", "_id": id});
       }
-
+      
+      if (!ObjectID.isValid(id)) {
+        return res.json({"error": "could not update", "_id": id});
+      }
+      
       dbUtils.updateIssueById((err, data) => {
-        res.json({
-          "result": "successfully updated",
-          "_id": data._id
-        })
+        if (err || data === null) res.json({"error": "could not update", "_id": id});
+        else {
+          res.json({
+            "result": "successfully updated",
+            "_id": id
+        });}
       }, id, updates);
     })
     
