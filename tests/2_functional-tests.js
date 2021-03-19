@@ -211,19 +211,21 @@ suite("Functional Tests", function () {
         });
     });
 
-    test('Attempt update with invalid id', (done) => {
+    test('Attempt update with invalid/unknown id', (done) => {
       chai
         .request(server)
         .put('/api/issues/apitest')
         .send({
-          "_id": "this is an invalid id",
+          "_id": "5f665eb46e296f6b9b6a504d",
           "issue_title": "this should not work"
         })
         .end((req, res) => {
           assert.equal(res.status, 200);
-          assert.equal(res.body.error, "invalid _id");
+          assert.equal(res.body.error, "could not update");
           done();
         });
     });
   });
+
+  // suite('')
 });
