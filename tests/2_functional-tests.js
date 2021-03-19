@@ -242,7 +242,7 @@ suite("Functional Tests", function () {
           assert.equal(res.body._id, id);
 
           Issue.findById(id, (err, data) => {
-            assert.exists(data);
+            assert.notExists(data);
             assert.notExists(err);
           });
           done();
